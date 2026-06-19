@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.vscode/launch.json
+
+# imagens de captura de calibração (são grandes e não precisam ir pro git)
+calibration/images/*.png
+
+# matrizes de calibração são específicas da SUA câmera -- normalmente
+# não versionamos, mas se quiser deixar como exemplo, comente a linha abaixo
+calibration/*.npy
+
+.DS_Store
