@@ -1,14 +1,11 @@
-# Precision Landing Vision
+# Aruco Precision Landing
 
-Estimativa de pose em tempo real para guiamento de aproximação e pouso de
-precisão de VTOLs/drones, usando visão computacional monocular e marcadores
-fiduciais ArUco.
+> Estimativa de pose em tempo real para guiamento de aproximação e pouso autônomo de VTOLs, usando visão computacional monocular.
 
 📄 Documentação técnica completa: [`docs/technical_notes.md`](docs/technical_notes.md)
 
 ## Status
-🚧 Em desenvolvimento — projeto de fim de semana, conectado ao trabalho de
-mapeamento aéreo VTOL na UFV/NERo.
+Em desenvolvimento
 
 ## Como funciona
 
@@ -26,8 +23,7 @@ pip install -r requirements.txt
 
 ## Calibração da câmera
 
-Como solução criativa (sem impressora), o padrão de calibração é exibido
-na tela do celular em vez de impresso em papel — funciona igualmente bem.
+O padrão de calibração é exibido na tela do celular.
 
 ```bash
 cd calibration
