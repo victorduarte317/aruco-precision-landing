@@ -50,8 +50,8 @@ python marker_generator.py   # gera aruco_marker.png
 - [x] Estrutura do projeto
 - [x] Geração de padrão de calibração e marcador
 - [x] Scripts de captura e calibração de câmera
-- [ ] Estimativa de pose (`src/pose_estimation.py`)
-- [ ] HUD de status de pouso (`src/landing_hud.py`)
+- [X] Estimativa de pose (`src/pose_estimation.py`)
+- [X] HUD de status de pouso (`src/landing_hud.py`)
 - [ ] Loop principal (`src/main.py`)
 - [ ] Demo gravado (GIF)
 
