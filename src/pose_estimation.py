@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from landing_hud import draw_landing_hud
 
 calib_dir = os.path.join(os.path.dirname(__file__), "..", "calibration")
 camera_matrix = np.load(os.path.join(calib_dir, "camera_matrix.npy"))
@@ -54,8 +55,8 @@ while True:
 
                 # tvec = [X, Y, Z] position in mm, relative to the camera
                 distance = np.linalg.norm(tvec)
-                print(f"Marker {ids[i][0]}: distance = {distance:.1f} mm")
-
+                frame = draw_landing_hud(frame, rvec, tvec)
+                
     cv2.imshow("Pose Estimation", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
