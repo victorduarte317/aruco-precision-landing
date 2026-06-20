@@ -3,9 +3,7 @@ Calcula a matriz intrínseca da câmera e os coeficientes de distorção
 a partir das imagens capturadas em calibration/images/.
 
 IMPORTANTE: ajuste SQUARE_SIZE_MM para o tamanho REAL que você mediu
-com a régua na tela do celular (não o tamanho em pixels do arquivo!).
-Isso é o que converte as medições de pixels para milímetros reais --
-sem isso, a pose estimada não bate com a distância física verdadeira.
+com a régua/trena na tela do celular.
 
 Uso:
     python calibrate_camera.py
@@ -20,7 +18,7 @@ SQUARES_X = 7
 SQUARES_Y = 5
 PATTERN_SIZE = (SQUARES_X - 1, SQUARES_Y - 1)
 
-SQUARE_SIZE_MM = 25.0  # <<< TROQUE pelo valor medido com a régua na tela
+SQUARE_SIZE_MM = 10.0  # <<< valor medido com a trena
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 
@@ -31,8 +29,9 @@ def main():
 
     objpoints = []
     imgpoints = []
+    used_filenames = []
 
-    images = glob.glob(os.path.join(IMAGES_DIR, "*.png"))
+    images = sorted(glob.glob(os.path.join(IMAGES_DIR, "*.png")))
     if len(images) < 10:
         print(f"Apenas {len(images)} imagens encontradas. Capture pelo menos 10-15.")
         return
@@ -49,6 +48,7 @@ def main():
             corners_refined = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
             objpoints.append(objp)
             imgpoints.append(corners_refined)
+            used_filenames.append(fname)
 
     print(f"Padrão detectado em {len(objpoints)}/{len(images)} imagens.")
 
@@ -56,9 +56,25 @@ def main():
         objpoints, imgpoints, img_shape, None, None
     )
 
-    print("\n=== Resultado da calibração ===")
-    print(f"Erro de reprojeção (quanto menor, melhor): {ret:.4f}")
-    print(f"Matriz da câmera:\n{camera_matrix}")
+    print("\n=== Resultado da calibração (todas as imagens) ===")
+    print(f"Erro de reprojeção geral: {ret:.4f}")
+
+    # --- NOVO: calcula o erro POR IMAGEM, pra identificar as piores ---
+    print("\n=== Erro individual por imagem ===")
+    per_image_errors = []
+    for i in range(len(objpoints)):
+        imgpoints_reproj, _ = cv2.projectPoints(
+            objpoints[i], rvecs[i], tvecs[i], camera_matrix, dist_coeffs
+        )
+        error = cv2.norm(imgpoints[i], imgpoints_reproj, cv2.NORM_L2) / len(imgpoints_reproj)
+        per_image_errors.append((os.path.basename(used_filenames[i]), error))
+
+    per_image_errors.sort(key=lambda x: x[1], reverse=True)
+    for fname, err in per_image_errors:
+        flag = "  <-- candidata a remover" if err > ret * 1.5 else ""
+        print(f"  {fname}: {err:.4f}{flag}")
+
+    print(f"\nMatriz da câmera:\n{camera_matrix}")
     print(f"Coeficientes de distorção:\n{dist_coeffs}")
 
     np.save(os.path.join(os.path.dirname(__file__), "camera_matrix.npy"), camera_matrix)
@@ -66,8 +82,8 @@ def main():
     print("\nSalvo: camera_matrix.npy e dist_coeffs.npy")
 
     if ret > 1.0:
-        print("\nAVISO: erro de reprojeção alto (>1.0). Considere capturar mais")
-        print("imagens com ângulos variados, ou verificar se SQUARE_SIZE_MM está correto.")
+        print("\nAVISO: erro de reprojeção alto (>1.0). Veja a lista acima --")
+        print("remova as imagens com erro mais alto e rode de novo.")
 
 if __name__ == "__main__":
     main()
